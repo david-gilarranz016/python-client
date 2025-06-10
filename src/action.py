@@ -1,4 +1,5 @@
 from abc import ABC
 
 class Action(ABC):
-    pass
+    def run(self, args: dict[str, str]):
+        pass
