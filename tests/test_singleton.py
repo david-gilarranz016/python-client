@@ -1,5 +1,6 @@
 from src.singleton import Singleton
 from typing import Callable
+from abc import ABC
 
 import pytest
 
@@ -36,3 +37,6 @@ def test_returns_the_same_object(singleton_factory: Callable[[], Singleton]) -> 
 
     # Expect both instances to be the same object
     assert instance1 is instance2
+
+def test_singleton_is_abc() -> None:
+    assert issubclass(Singleton, ABC)
