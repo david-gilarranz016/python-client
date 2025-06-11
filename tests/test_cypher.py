@@ -6,11 +6,11 @@ import pytest
 from src.cypher import AESCypher
 from Crypto.Cipher import AES
 
-###################################################################################
-#                                                                                 #
-# Test Cases                                                                      #
-#                                                                                 #
-###################################################################################
+################################################################################
+#                                                                              #
+# Test Cases                                                                   #
+#                                                                              #
+################################################################################
 
 def test_uses_supplied_key_to_encrypt_messages(mocker: MockFixture) -> None:
     message = 'Secret message'
@@ -28,11 +28,11 @@ def test_uses_supplied_key_and_iv_to_decode_a_different_encrypted_messages(mocke
     message = 'Different test message'
     run_decryption_test_scenario(message, mocker)
 
-###################################################################################
-#                                                                                 #
-# Test scenarios to avoid test-case code duplication                              #
-#                                                                                 #
-###################################################################################
+################################################################################
+#                                                                              #
+# Test scenarios to avoid test-case code duplication                           #
+#                                                                              #
+################################################################################
 
 def run_encryption_test_scenario(plaintext: str, mocker: MockFixture) -> None:
     # Initialize variables 
@@ -67,11 +67,11 @@ def run_decryption_test_scenario(plaintext: str, mocker: MockFixture) -> None:
     assert cypher.decrypt(encrypted_message['body'], encrypted_message['iv']) == decrypted_message
     
 
-###################################################################################
-#                                                                                 #
-# Helper functions for test scenarios                                             #
-#                                                                                 #
-###################################################################################
+################################################################################
+#                                                                              #
+# Helper functions for test scenarios                                          #
+#                                                                              #
+################################################################################
 
 # Helper function to encrypt text
 def encrypt(plaintext: str, key: bytes, iv: bytes) -> str:
