@@ -61,6 +61,22 @@ def test_returns_different_processed_response(mock_session: MagicMock) -> None:
     response = { 'output': 'different output', 'nonce': '0fa828614bda99145fb9c28e9d0fe850' }
     run_test_response_scenario(response, mock_session)
 
+def test_returns_empty_output_if_response_has_no_output(mock_session: MagicMock) -> None:
+    # Initialize http service
+    key = secrets.token_bytes(32)
+    initialize_http_service(key = key)
+
+    # Create empty mock_response
+    mock_session.post.return_value = create_mock_response(key, '')
+
+    # Send a request
+    http_service = HTTPService()
+    response = http_service.send_request({ 'action': 'test' })
+
+    # Expect response output to be empty
+    assert response['output'] == ''
+
+
 ################################################################################
 #                                                                              #
 # Test scenarios to reduce test-case code duplication                          #
@@ -134,13 +150,14 @@ def initialize_http_service(
     http_service = HTTPService()
     http_service.initialize(url, key, nonce)
 
-def create_mock_response(key: bytes, body: dict[str, Any]) -> MagicMock:
+def create_mock_response(key: bytes, body: dict[str, Any] | str) -> MagicMock:
     # Encrypt the body and convert the object into json
     response = AESCypher(key).encrypt(json.dumps(body))
 
-    # Mock the Response object to return the json_decoded body
+    # Mock the Response object to return the body in the correct format
     mock_response = MagicMock()
-    mock_response.json.return_value = response
+    mock_response.text = json.dumps(response) if body != '' else ''
+    mock_response.json.return_value = response if body != '' else ''
 
     return mock_response
 
