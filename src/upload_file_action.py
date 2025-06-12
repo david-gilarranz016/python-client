@@ -5,17 +5,24 @@ from typing import Any
 
 class UploadFileAction(Action):
     def run(self, args: dict[str, Any]) -> str:
-        # Base64 encode the requested file content
-        content = '' 
-        with open(args['filename'], 'r') as f:
-            content = b64encode(f.read().encode()).decode()
+        content = None
+
+        # Read and base64 encode the appropriate file. The mode depends on if the file is
+        # binary or not
+        if args['binary']:
+            with open(args['filename'], 'rb') as f:
+                content = b64encode(f.read()).decode()
+        else:
+            with open(args['filename'], 'r') as f:
+                content = b64encode(f.read().encode()).decode()
 
         # Craft and send the request
         request = {
             'action': 'upload_file',
             'args': {
                 'filename': args['filename'],
-                'content': content
+                'content': content,
+                'binary': args['binary']
             }
         }
         HTTPService().send_request(request)

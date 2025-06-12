@@ -34,15 +34,29 @@ def http_service(mocker: pytest_mock.MockFixture) -> MagicMock:
 def test_is_action() -> None:
     assert issubclass(UploadFileAction, Action)
 
-def test_uploads_base64_encoded_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
+def test_uploads_base64_encoded_text_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
     filename = 'test.txt'
     content = 'Sample content'
-    run_uploads_base64_encoded_file_scenario(filename, content, http_service)
+    binary = False
+    run_uploads_base64_encoded_file_scenario(filename, content, binary, http_service)
 
-def test_uploads_different_base64_encoded_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
+def test_uploads_different_base64_encoded_text_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
     filename = 'different_file.txt'
     content = 'Different content'
-    run_uploads_base64_encoded_file_scenario(filename, content, http_service)
+    binary = False
+    run_uploads_base64_encoded_file_scenario(filename, content, binary, http_service)
+
+def test_uploads_base64_encoded_binary_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    filename = 'test.bin'
+    content = b'Sample binary content'
+    binary = True
+    run_uploads_base64_encoded_file_scenario(filename, content, binary, http_service)
+
+def test_uploads_different_base64_encoded_binary_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    filename = 'different_file.bin'
+    content = b'Different binary content'
+    binary = True
+    run_uploads_base64_encoded_file_scenario(filename, content, binary, http_service)
 
 ################################################################################
 #                                                                              #
@@ -50,23 +64,25 @@ def test_uploads_different_base64_encoded_file(http_service: MagicMock, fs: Fake
 #                                                                              #
 ################################################################################
 
-def run_uploads_base64_encoded_file_scenario(filename: str, contents: str, http_service: MagicMock) -> None:
+def run_uploads_base64_encoded_file_scenario(filename: str, contents: str | bytes, binary: bool, http_service: MagicMock) -> None:
     # Create the file
-    create_file(filename, contents)
+    create_file(filename, contents, binary)
 
     # Get the base64-encoded contents
-    base64_contents = base64.b64encode(contents.encode()).decode()
+    raw_contents = contents if binary else contents.encode()
+    base64_contents = base64.b64encode(raw_contents).decode()
     request = {
         'action': 'upload_file',
         'args': {
             'filename': filename,
-            'content': base64_contents
+            'content': base64_contents,
+            'binary': binary
         }
     }
 
     # Run the action
     action = UploadFileAction()
-    action.run({ 'filename': filename })
+    action.run({ 'filename': filename, 'binary': binary })
 
     # Expect the http_service to be called with the appropriate parameters
     http_service.send_request.assert_called_once_with(request)
@@ -77,6 +93,7 @@ def run_uploads_base64_encoded_file_scenario(filename: str, contents: str, http_
 #                                                                              #
 ################################################################################
 
-def create_file(filename: str, content: str) -> None:
-    with open(filename, 'w') as f:
-        f.writelines(content)
+def create_file(filename: str, content: str | bytes, binary: bool) -> None:
+    mode = 'wb' if binary else 'w'
+    with open(filename, mode) as f:
+        f.write(content)
