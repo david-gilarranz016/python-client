@@ -53,6 +53,17 @@ def test_returns_saved_commands_when_requesting_history(history_service: History
     history = history_service.get_history()
     assert history == cmds
 
+def test_search_history_filters_output_to_commands_matching_query(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+    cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l', 'cat flag.txt' ]
+    search_cmd = 'cat' 
+    run_search_history_test_scenario(history_service, cmds, search_cmd)
+
+def test_search_history_filters_output_to_commands_matching_different_query(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+    cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l', 'cat flag.txt' ]
+    search_cmd = 'ls' 
+    run_search_history_test_scenario(history_service, cmds, search_cmd)
+
+
 ################################################################################
 #                                                                              #
 # Test scenarios to avoid test-case code duplication                           #
@@ -78,6 +89,17 @@ def run_saves_command_test_scenario(command: str, history_service: HistoryServic
     with open('./.webshell_history', 'r') as f:
         saved_history = f.readlines()
         assert saved_history[len(saved_history) - 1] == f'{command}\n'
+
+def run_search_history_test_scenario(history_service: HistoryService, commands: list[str], search_target: str) -> None:
+    # Save a list of commands
+    for cmd in commands:
+        history_service.add_command(cmd)
+
+    # Search the command
+    expected_result = [ cmd for cmd in commands if cmd.startswith(search_target) ]
+    result = history_service.search_command(search_target)
+
+    assert result == expected_result
 
 ################################################################################
 #                                                                              #

@@ -21,3 +21,6 @@ class HistoryService(Singleton):
         # Save the command to disk
         with open('./.webshell_history', 'a') as f:
             f.write(f'{cmd}\n')
+
+    def search_command(self, cmd: str) -> list[str]:
+        return [ c for c in self.__history if c.startswith(cmd) ] 
