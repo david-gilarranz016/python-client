@@ -3,6 +3,7 @@ from src.singleton import Singleton
 
 import pytest
 import pyfakefs
+import os
 
 ################################################################################
 #                                                                              #
@@ -63,6 +64,26 @@ def test_search_history_filters_output_to_commands_matching_different_query(hist
     search_cmd = 'ls' 
     run_search_history_test_scenario(history_service, cmds, search_cmd)
 
+def test_delete_history_empties_the_command_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+    # Add a series of commands
+    cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l' ]
+    for cmd in cmds:
+        history_service.add_command(cmd)
+
+    # Delete the history and expect it to be empty
+    history_service.delete_history()
+    assert history_service.get_history() == []
+
+def test_delete_history_deletes_the_history_file(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+    # Add a series of commands
+    cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l' ]
+    for cmd in cmds:
+        history_service.add_command(cmd)
+
+    # Delete the history and expect the file to have been removed
+    history_service.delete_history()
+    
+    assert os.path.exists('./.webshell_history') == False
 
 ################################################################################
 #                                                                              #

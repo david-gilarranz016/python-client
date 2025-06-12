@@ -1,5 +1,7 @@
 from src.singleton import Singleton
 
+import os
+
 class HistoryService(Singleton):
 
     def __init__(self) -> None:
@@ -24,3 +26,10 @@ class HistoryService(Singleton):
 
     def search_command(self, cmd: str) -> list[str]:
         return [ c for c in self.__history if c.startswith(cmd) ] 
+
+    def delete_history(self) -> None:
+        # Empty the saved history
+        self.__history = []
+
+        # Delete the history file
+        os.remove('./.webshell_history')
