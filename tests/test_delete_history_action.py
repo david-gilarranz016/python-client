@@ -3,8 +3,8 @@ from src.action import Action
 from src.history_service import HistoryService
 
 import pytest
-import pyfakefs
 import os
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 ################################################################################
 #                                                                              #
@@ -29,7 +29,7 @@ def history_service() -> HistoryService:
 def test_is_an_action() -> None:
     assert issubclass(DeleteHistoryAction, Action)
 
-def test_deletes_command_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_deletes_command_history(history_service: HistoryService, fs: FakeFilesystem) -> None:
     # Save commands
     saved_history = [ 'id', 'groups', 'docker ps -a' ]
     for cmd in saved_history:
@@ -42,7 +42,7 @@ def test_deletes_command_history(history_service: HistoryService, fs: pyfakefs.f
     # Expect the command history to be empty
     assert HistoryService().get_history() == []
 
-def test_deletes_history_file(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_deletes_history_file(history_service: HistoryService, fs: FakeFilesystem) -> None:
     # Save commands
     saved_history = [ 'id', 'groups', 'docker ps -a' ]
     for cmd in saved_history:

@@ -2,8 +2,8 @@ from src.history_service import HistoryService
 from src.singleton import Singleton
 
 import pytest
-import pyfakefs
 import os
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 ################################################################################
 #                                                                              #
@@ -28,23 +28,23 @@ def history_service() -> HistoryService:
 def test_is_singleton() -> None:
     assert issubclass(HistoryService, Singleton)
 
-def test_loads_history_from_disk(fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_loads_history_from_disk(fs: FakeFilesystem) -> None:
     saved_history = [ 'whoami', 'id', 'pwd', 'ls -l' ]
     run_loads_history_test_scenario(saved_history)
     
-def test_loads_different_history_from_disk(fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_loads_different_history_from_disk(fs: FakeFilesystem) -> None:
     saved_history = [ 'ls -la', 'rm .bash_history', 'groups' ]
     run_loads_history_test_scenario(saved_history)
 
-def test_saves_command_to_disk(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_saves_command_to_disk(history_service: HistoryService, fs: FakeFilesystem) -> None:
     cmd = 'pwd'
     run_saves_command_test_scenario(cmd, history_service)
     
-def test_saves_different_command_to_disk(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_saves_different_command_to_disk(history_service: HistoryService, fs: FakeFilesystem) -> None:
     cmd = 'id'
     run_saves_command_test_scenario(cmd, history_service)
 
-def test_returns_saved_commands_when_requesting_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_returns_saved_commands_when_requesting_history(history_service: HistoryService, fs: FakeFilesystem) -> None:
     # Save a few commands
     cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l' ]
     for cmd in cmds:
@@ -54,17 +54,17 @@ def test_returns_saved_commands_when_requesting_history(history_service: History
     history = history_service.get_history()
     assert history == cmds
 
-def test_search_history_filters_output_to_commands_matching_query(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_search_history_filters_output_to_commands_matching_query(history_service: HistoryService, fs: FakeFilesystem) -> None:
     cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l', 'cat flag.txt' ]
     search_cmd = 'cat' 
     run_search_history_test_scenario(history_service, cmds, search_cmd)
 
-def test_search_history_filters_output_to_commands_matching_different_query(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_search_history_filters_output_to_commands_matching_different_query(history_service: HistoryService, fs: FakeFilesystem) -> None:
     cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l', 'cat flag.txt' ]
     search_cmd = 'ls' 
     run_search_history_test_scenario(history_service, cmds, search_cmd)
 
-def test_delete_history_empties_the_command_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_delete_history_empties_the_command_history(history_service: HistoryService, fs: FakeFilesystem) -> None:
     # Add a series of commands
     cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l' ]
     for cmd in cmds:
@@ -74,7 +74,7 @@ def test_delete_history_empties_the_command_history(history_service: HistoryServ
     history_service.delete_history()
     assert history_service.get_history() == []
 
-def test_delete_history_deletes_the_history_file(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_delete_history_deletes_the_history_file(history_service: HistoryService, fs: FakeFilesystem) -> None:
     # Add a series of commands
     cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l' ]
     for cmd in cmds:

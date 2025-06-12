@@ -3,7 +3,7 @@ from src.action import Action
 from src.history_service import HistoryService
 
 import pytest
-import pyfakefs
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 ################################################################################
 #                                                                              #
@@ -28,22 +28,22 @@ def history_service() -> HistoryService:
 def test_is_an_action() -> None:
     assert issubclass(ShowHistoryAction, Action)
 
-def test_returns_saved_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_returns_saved_history(history_service: HistoryService, fs: FakeFilesystem) -> None:
     saved_history = [ 'pwd', 'id', 'ls -l /home' ]
     run_returns_saved_history_test_scenario(saved_history, history_service)
 
-def test_returns_different_saved_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_returns_different_saved_history(history_service: HistoryService, fs: FakeFilesystem) -> None:
     saved_history = [ 'id', 'groups', 'docker ps -a' ]
     run_returns_saved_history_test_scenario(saved_history, history_service)
 
 def test_returns_last_instance_of_executed_command_when_supplied_the_search_parameter(
-        history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+        history_service: HistoryService, fs: FakeFilesystem) -> None:
     target = 'ls'
     saved_history = [ 'pwd', 'id', 'ls -l /home', 'cd /home/web-admin', 'ls -a' ]
     run_search_history_test_scenario(saved_history, target, history_service)
 
 def test_returns_last_instance_of_executed_command_when_supplied_different_search_parameter(
-        history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+        history_service: HistoryService, fs: FakeFilesystem) -> None:
     target = 'cd'
     saved_history = [ 'pwd', 'id', 'ls -l /home', 'cd /home/web-admin', 'ls -a', 'cd .ssh' ]
     run_search_history_test_scenario(saved_history, target, history_service)
