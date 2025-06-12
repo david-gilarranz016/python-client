@@ -22,6 +22,14 @@ class HTTPService(Singleton):
         response = self.__session.post(self.__url, json = {
             'body': encrypted_request['body'],
             'iv': encrypted_request['iv'],
-        })
+        }).json()
 
-        return ''
+        # Extract the nonce and body
+        response = json.loads(
+                self.__cypher.decrypt(response['body'].encode(), response['iv'].encode())
+        )
+
+        # Update the nonce
+        self.__nonce = response.pop('nonce')
+
+        return response

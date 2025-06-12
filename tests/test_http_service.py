@@ -53,6 +53,14 @@ def test_sends_encrypted_request_using_supplied_dict(mock_session: MagicMock) ->
     request = { 'action': 'download_file', 'args': { 'filename': 'test.txt' } }
     run_test_request_args_scenario(request, mock_session)
 
+def test_returns_processed_response(mock_session: MagicMock) -> None:
+    response = { 'output': 'sample output', 'nonce': 'd9c0dce01d7770b3a61ec53382f7fb60' }
+    run_test_response_scenario(response, mock_session)
+
+def test_returns_different_processed_response(mock_session: MagicMock) -> None:
+    response = { 'output': 'different output', 'nonce': '0fa828614bda99145fb9c28e9d0fe850' }
+    run_test_response_scenario(response, mock_session)
+
 ################################################################################
 #                                                                              #
 # Test scenarios to reduce test-case code duplication                          #
@@ -63,7 +71,14 @@ def run_test_request_args_scenario(request: dict[str, Any], mock_session: MagicM
     # Initialize http service
     url = 'https://example.com/webshell.php'
     nonce = binascii.hexlify(secrets.token_bytes(16)).decode()
-    initialize_http_service(url = url, nonce = nonce)
+    key = secrets.token_bytes(32)
+    initialize_http_service(url = url, key = key, nonce = nonce)
+
+    # Add response to the mock request
+    mock_session.post.return_value = create_mock_response(key, {
+        'output': 'test',
+        'nonce': 'd9c0dce01d7770b3a61ec53382f7fb60'
+    })
 
     # Use the HTTPService to send a request
     http_service = HTTPService()
@@ -85,6 +100,26 @@ def run_test_request_args_scenario(request: dict[str, Any], mock_session: MagicM
 
     reset_http_service()
 
+def run_test_response_scenario(response: dict[str, Any], mock_session: MagicMock) -> None:
+    # Initialize http service
+    key = secrets.token_bytes(32)
+    initialize_http_service(key = key)
+
+    # Prepare the response body and mock the session to return it
+    mock_session.post.return_value = create_mock_response(key, response)
+
+    # Use the HTTP service to send a request
+    http_service = HTTPService()
+    received_response = http_service.send_request({ 'action': 'test' })
+
+    # Verify the received response matches the expected one
+    assert received_response['output'] == response['output']
+
+    # Verify the Nonce has been updated
+    assert http_service._HTTPService__nonce == response['nonce']
+
+    reset_http_service()
+
 ################################################################################
 #                                                                              #
 # Helper functions and classes                                                 #
@@ -99,7 +134,16 @@ def initialize_http_service(
     http_service = HTTPService()
     http_service.initialize(url, key, nonce)
 
+def create_mock_response(key: bytes, body: dict[str, Any]) -> MagicMock:
+    # Encrypt the body and convert the object into json
+    response = AESCypher(key).encrypt(json.dumps(body))
+
+    # Mock the Response object to return the json_decoded body
+    mock_response = MagicMock()
+    mock_response.json.return_value = response
+
+    return mock_response
+
 def reset_http_service() -> None:
     # Destroy the created instance to reset state
     delattr(HTTPService, 'instance')
-
