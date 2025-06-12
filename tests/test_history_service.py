@@ -27,21 +27,31 @@ def history_service() -> HistoryService:
 def test_is_singleton() -> None:
     assert issubclass(HistoryService, Singleton)
 
-def test_loads_history_from_disk(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_loads_history_from_disk(fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
     saved_history = [ 'whoami', 'id', 'pwd', 'ls -l' ]
-    run_loads_history_test_scenario(saved_history, history_service)
+    run_loads_history_test_scenario(saved_history)
     
-def test_loads_different_history_from_disk(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+def test_loads_different_history_from_disk(fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
     saved_history = [ 'ls -la', 'rm .bash_history', 'groups' ]
-    run_loads_history_test_scenario(saved_history, history_service)
+    run_loads_history_test_scenario(saved_history)
 
 def test_saves_command_to_disk(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
     cmd = 'pwd'
     run_saves_command_test_scenario(cmd, history_service)
     
 def test_saves_different_command_to_disk(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
-    cmd = 'pwd'
+    cmd = 'id'
     run_saves_command_test_scenario(cmd, history_service)
+
+def test_returns_saved_commands_when_requesting_history(history_service: HistoryService, fs: pyfakefs.fake_filesystem.FakeFilesystem) -> None:
+    # Save a few commands
+    cmds = [ 'cat /etc/passwd', 'cd /home/web-admin', 'ls -l' ]
+    for cmd in cmds:
+        history_service.add_command(cmd)
+
+    # Retrieve the command history and expect it to contain the saved commands
+    history = history_service.get_history()
+    assert history == cmds
 
 ################################################################################
 #                                                                              #
@@ -49,11 +59,12 @@ def test_saves_different_command_to_disk(history_service: HistoryService, fs: py
 #                                                                              #
 ################################################################################
 
-def run_loads_history_test_scenario(saved_history: list[str], history_service: HistoryService) -> None:
+def run_loads_history_test_scenario(saved_history: list[str]) -> None:
     with open('./.webshell_history', 'w') as f:
         f.writelines(map(lambda cmd: cmd + '\n', saved_history))
     
     # Request the history and expect the file to have been read
+    history_service = HistoryService()
     history = history_service.get_history()
 
     # Expect both lists to be equal
