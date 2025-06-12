@@ -34,23 +34,35 @@ def http_service(mocker: pytest_mock.MockFixture) -> MagicMock:
 def test_is_action() -> None:
     assert issubclass(DownloadFileAction, Action)
 
-def test_requests_a_file_to_be_downloaded(http_service: MagicMock, fs: FakeFilesystem) -> None:
+def test_requests_a_text_file_to_be_downloaded(http_service: MagicMock, fs: FakeFilesystem) -> None:
     filename = 'test.txt'
-    run_requests_file_test_scenario(filename, http_service)
+    binary = False
+    run_requests_file_test_scenario(filename, binary, http_service)
 
-def test_requests_a_different_file_to_be_downloaded(http_service: MagicMock, fs: FakeFilesystem) -> None:
-    filename = 'different_file.txt'
-    run_requests_file_test_scenario(filename, http_service)
+def test_requests_a_binary_file_to_be_downloaded(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    filename = 'test.bin'
+    binary = True
+    run_requests_file_test_scenario(filename, binary, http_service)
 
-def test_creates_a_file_with_the_received_content(http_service: MagicMock, fs: FakeFilesystem) -> None:
+def test_creates_a_text_file_with_the_received_content(http_service: MagicMock, fs: FakeFilesystem) -> None:
     filename = 'test.txt'
     content = 'Sample content'
-    run_creates_file_test_scenario(filename, content, http_service)
+    run_creates_text_file_test_scenario(filename, content, http_service)
 
-def test_creates_different_file_with_binary_content(http_service: MagicMock, fs: FakeFilesystem) -> None:
+def test_creates_different_text_file_with_received_content(http_service: MagicMock, fs: FakeFilesystem) -> None:
     filename = 'different_file.txt'
-    content = 'Sample binary file'
-    run_creates_file_test_scenario(filename, content, http_service)
+    content = 'Different text file'
+    run_creates_text_file_test_scenario(filename, content, http_service)
+
+def test_creates_a_binary_file_with_the_received_content(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    filename = 'test.bin'
+    content = b'Sample binary content'
+    run_creates_binary_file_test_scenario(filename, content, http_service)
+
+def test_creates_different_binary_file_with_received_content(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    filename = 'different_file.txt'
+    content = b'Different binary file'
+    run_creates_binary_file_test_scenario(filename, content, http_service)
 
 ################################################################################
 #                                                                              #
@@ -58,32 +70,44 @@ def test_creates_different_file_with_binary_content(http_service: MagicMock, fs:
 #                                                                              #
 ################################################################################
 
-def run_requests_file_test_scenario(filename: str, http_service: MagicMock) -> None:
+def run_requests_file_test_scenario(filename: str, binary: bool, http_service: MagicMock) -> None:
     # Create request and response
     request = {
         'action': 'download_file',
         'args': {
-            'filename': filename
+            'filename': filename,
+            'binary': binary
         }
     }
     create_response(http_service)
     
     # Run the action
     action = DownloadFileAction()
-    action.run({ 'filename': filename })
+    action.run({ 'filename': filename, 'binary': binary })
 
     # Expect the request to have been made
     http_service.send_request.assert_called_once_with(request)
 
-def run_creates_file_test_scenario(filename: str, content: str, http_service: MagicMock) -> None:
+def run_creates_text_file_test_scenario(filename: str, content: str, http_service: MagicMock) -> None:
     create_response(http_service, content)
 
     # Call the action
     action = DownloadFileAction()
-    action.run({ 'filename': filename })
+    action.run({ 'filename': filename, 'binary': False })
 
     # Expect a file to have been created with the correct contents
     with open(filename, 'r') as f:
+        assert content == f.read()
+
+def run_creates_binary_file_test_scenario(filename: str, content: bytes, http_service: MagicMock) -> None:
+    create_response(http_service, content)
+
+    # Call the action
+    action = DownloadFileAction()
+    action.run({ 'filename': filename, 'binary': True })
+
+    # Expect a file to have been created with the correct contents
+    with open(filename, 'rb') as f:
         assert content == f.read()
 
 ################################################################################
@@ -92,9 +116,11 @@ def run_creates_file_test_scenario(filename: str, content: str, http_service: Ma
 #                                                                              #
 ################################################################################
 
-def create_response(http_service: MagicMock, content: str = '') -> None:
+def create_response(http_service: MagicMock, content: str | bytes = '') -> None:
     # Create a the response and configure the mocked service to return it
+    raw_content = content if type(content) == bytes else content.encode()
     response = {
-        'output': b64encode(content.encode()).decode()
+        'output': b64encode(raw_content).decode()
     }
     http_service.send_request.return_value = response
+
