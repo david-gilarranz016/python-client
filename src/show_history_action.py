@@ -1,4 +1,6 @@
 from src.action import Action
+from src.history_service import HistoryService
 
 class ShowHistoryAction(Action):
-    pass
+    def run(self, args: dict[str, str]) -> str:
+        return '\n'.join(HistoryService().get_history())
