@@ -1,8 +1,9 @@
 from src.action import Action
 from src.history_service import HistoryService
+from typing import Any
 
 class ShowHistoryAction(Action):
-    def run(self, args: dict[str, str]) -> str:
+    def run(self, args: dict[str, Any]) -> str:
         # Get a history service instance
         history_service = HistoryService()
 

@@ -1,9 +1,10 @@
 from src.action import Action
 from src.http_service import HTTPService
 from base64 import b64encode
+from typing import Any
 
 class UploadFileAction(Action):
-    def run(self, args: dict[str, str]) -> str:
+    def run(self, args: dict[str, Any]) -> str:
         # Base64 encode the requested file content
         content = '' 
         with open(args['filename'], 'r') as f:
