@@ -52,6 +52,14 @@ def test_uses_http_service_to_request_different_command(http_service: MagicMock,
     cmd = 'pwd'
     run_sends_command_test_scenario(cmd, http_service)
 
+def test_returns_command_output(http_service: MagicMock, history_service: MagicMock) -> None:
+    output = 'uid=1000(web-admin) gid=1000(web-admin) groups=1000(web-admin),962(docker)'
+    run_returns_command_output_test_scenario(output, http_service)
+
+def test_returns_different_command_output(http_service: MagicMock, history_service: MagicMock) -> None:
+    output = '/var/www/html'
+    run_returns_command_output_test_scenario(output, http_service)
+
 ################################################################################
 #                                                                              #
 # Test scenarios to avoid test-case code duplication                           #
@@ -74,6 +82,16 @@ def run_sends_command_test_scenario(cmd: str, http_service: MagicMock) -> None:
     # Expect the HTTPService to have been requested the request
     http_service.send_request.assert_called_once_with(request)
 
+def run_returns_command_output_test_scenario(output: str, http_service: MagicMock) -> None:
+    # Set the return value for the request
+    http_service.send_request.return_value = { 'output': output }
+        
+    # Run the action
+    action = ExecuteCommandAction()
+    response = action.run({ 'cmd': 'id' })
+
+    # Expext the response to be the supplied output
+    assert response == output
 
 ################################################################################
 #                                                                              #

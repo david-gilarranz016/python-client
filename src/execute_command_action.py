@@ -13,4 +13,4 @@ class ExecuteCommandAction(Action):
         }
         response = HTTPService().send_request(request)
 
-        return ''
+        return response['output']
