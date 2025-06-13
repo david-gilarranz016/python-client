@@ -60,6 +60,15 @@ def test_returns_different_command_output(http_service: MagicMock, history_servi
     output = '/var/www/html'
     run_returns_command_output_test_scenario(output, http_service)
 
+def test_logs_requested_command(http_service: MagicMock, history_service: MagicMock) -> None:
+    cmd = 'id'
+    run_logs_command_test_scenario(cmd, history_service)
+
+def test_logs_different_requested_command(http_service: MagicMock, history_service: MagicMock) -> None:
+    cmd = 'pwd'
+    run_logs_command_test_scenario(cmd, history_service)
+
+
 ################################################################################
 #                                                                              #
 # Test scenarios to avoid test-case code duplication                           #
@@ -92,6 +101,15 @@ def run_returns_command_output_test_scenario(output: str, http_service: MagicMoc
 
     # Expext the response to be the supplied output
     assert response == output
+
+def run_logs_command_test_scenario(cmd: str, history_service: MagicMock) -> None:
+    # Run the action
+    action = ExecuteCommandAction()
+    response = action.run({ 'cmd': cmd })
+
+    # Expext the history service to have been requested to log the command
+    history_service.add_command.assert_called_once_with(cmd)
+
 
 ################################################################################
 #                                                                              #
