@@ -114,17 +114,6 @@ def test_calls_upload_file_action_for_binary_files(client: Client, mocker: MockF
         }
         client._Client__actions['upload_file'].run.assert_any_call(request)
 
-def test_calls_delete_history_action(client: Client, mocker: MockFixture) -> None:
-    # Craft the list of expected commands
-    commands = ['!delete_history']
-    mock_input(commands, mocker, append_exit=True)
-
-    # Run the client
-    client.run()
-
-    # Expect the execute_command action to have been called once with each command
-    client._Client__actions['delete_history'].run.assert_called_once_with({})
-
 def test_calls_download_file_action_for_text_files(client: Client, mocker: MockFixture) -> None:
     # Craft the list of expected commands
     commands = ['!get php.ini', '!get "/home/www-data/config backup.txt"']
@@ -156,6 +145,42 @@ def test_calls_download_file_action_for_binary_files(client: Client, mocker: Moc
             'binary': True
         }
         client._Client__actions['download_file'].run.assert_any_call(request)
+
+def test_calls_delete_history_action(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!delete_history']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    client._Client__actions['delete_history'].run.assert_called_once_with({})
+
+def test_calls_show_history_action(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!history']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    client._Client__actions['show_history'].run.assert_called_once_with({})
+
+def test_can_repeat_last_call_to_command(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['whoami', '!who']
+    mock_input(commands, mocker, append_exit=True)
+    client._Client__actions['show_history'].run.return_value = commands[0]
+
+    # Run the client
+    client.run()
+
+    # Expect the show_history action to have been used to query for the command and the
+    # execute_command action to run it
+    client._Client__actions['show_history'].run.assert_any_call({ 'search': 'who' })
+    client._Client__actions['execute_command'].run.assert_any_call({ 'cmd': 'whoami' })
 
 ################################################################################
 #                                                                              #
