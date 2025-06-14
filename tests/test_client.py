@@ -1,6 +1,7 @@
 from src.client import Client
 
 import pytest
+import textwrap
 from unittest.mock import MagicMock
 from pytest_mock import MockFixture
 from multiprocessing import Process
@@ -19,7 +20,8 @@ def client() -> Client:
         'upload_file',
         'download_file',
         'show_history',
-        'delete_history'
+        'delete_history',
+        'show_help'
     ]
     actions = {}
     for key in keys:
@@ -148,7 +150,7 @@ def test_calls_download_file_action_for_binary_files(client: Client, mocker: Moc
 
 def test_calls_delete_history_action(client: Client, mocker: MockFixture) -> None:
     # Craft the list of expected commands
-    commands = ['!delete_history']
+    commands = ['!delete']
     mock_input(commands, mocker, append_exit=True)
 
     # Run the client
@@ -181,6 +183,17 @@ def test_can_repeat_last_call_to_command(client: Client, mocker: MockFixture) ->
     # execute_command action to run it
     client._Client__actions['show_history'].run.assert_any_call({ 'search': 'who' })
     client._Client__actions['execute_command'].run.assert_any_call({ 'cmd': 'whoami' })
+
+def test_can_show_a_help_menu(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!help']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the show_help action to have been called
+    client._Client__actions['show_help'].run.assert_any_call({})
 
 ################################################################################
 #                                                                              #

@@ -1,5 +1,7 @@
 from src.action import Action
 
+import textwrap
+
 class Client:
     def __init__(self, actions: dict[str, Action]) -> None:
         self.__actions = actions
@@ -9,11 +11,14 @@ class Client:
 
         while not user_input == 'exit':
             # Call the appropriate action
-            action = None
+            action = ''
             args = {}
 
             # Select the appropriate action
-            if user_input.startswith('!put'):
+            if user_input == '!help':
+                action = 'show_help'
+                args = {}
+            elif user_input.startswith('!put'):
                 action = 'upload_file'
                 args = { 'filename': user_input.split(' ', 1)[1], 'binary': False }
             elif user_input.startswith('!binput'):
@@ -25,10 +30,10 @@ class Client:
             elif user_input.startswith('!binget'):
                 action = 'download_file'
                 args = { 'filename': user_input.split(' ', 1)[1], 'binary': True}
-            elif user_input.startswith('!history'):
+            elif user_input == '!history':
                 action = 'show_history'
                 args = {}
-            elif user_input.startswith('!delete'):
+            elif user_input == '!delete':
                 action = 'delete_history'
                 args = {}
             elif user_input.startswith('!'):
