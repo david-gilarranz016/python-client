@@ -114,14 +114,37 @@ def test_calls_upload_file_action_for_binary_files(client: Client, mocker: MockF
         }
         client._Client__actions['upload_file'].run.assert_any_call(request)
 
-################################################################################
-#                                                                              #
-# Test scenarios to avoid test-case code duplication                           #
-#                                                                              #
-################################################################################
+def test_calls_download_file_action_for_text_files(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!get php.ini', '!get "/home/www-data/config backup.txt"']
+    mock_input(commands, mocker, append_exit=True)
 
-def run_execute_command_test_scenario(cmd: list[str], client: Client, mocker: MockFixture) -> None:
-    pass
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    for cmd in commands:
+        request = {
+            'filename': cmd.split(' ', 1)[1],
+            'binary': False
+        }
+        client._Client__actions['download_file'].run.assert_any_call(request)
+        
+def test_calls_download_file_action_for_binary_files(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!binget backup.tar.gz', '!binget "/home/www-admin/privileged program.bin"']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    for cmd in commands:
+        request = {
+            'filename': cmd.split(' ', 1)[1],
+            'binary': True
+        }
+        client._Client__actions['download_file'].run.assert_any_call(request)
 
 ################################################################################
 #                                                                              #

@@ -19,6 +19,12 @@ class Client:
             elif user_input.startswith('!binput'):
                 action = 'upload_file'
                 args = { 'filename': user_input.split(' ', 1)[1], 'binary': True}
+            elif user_input.startswith('!get'):
+                action = 'download_file'
+                args = { 'filename': user_input.split(' ', 1)[1], 'binary': False }
+            elif user_input.startswith('!binget'):
+                action = 'download_file'
+                args = { 'filename': user_input.split(' ', 1)[1], 'binary': True}
             else:
                 action = 'execute_command'
                 args = { 'cmd': user_input }
