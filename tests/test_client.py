@@ -42,7 +42,7 @@ def test_when_exit_command_is_inputted_loop_stops(client: Client, mocker: MockFi
     assert status ==  0
 
 def test_keeps_running_until_exit_command_is_received(client: Client, mocker: MockFixture) -> None:
-    # Run the client with a 0.1 timeout
+    # Run the client with a 1ms timeout
     mock_input(['id'] * 1000000, mocker)
     test_process = Process(target=client.run)
     test_process.start()
@@ -54,13 +54,38 @@ def test_keeps_running_until_exit_command_is_received(client: Client, mocker: Mo
     # Kill the test process
     test_process.terminate()
 
+def test_calls_execute_command_action_when_receives_a_command(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['id', 'whoami']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    for cmd in commands:
+        client._Client__actions['execute_command'].run.assert_any_call({ 'cmd': cmd })
+
+
+################################################################################
+#                                                                              #
+# Test scenarios to avoid test-case code duplication                           #
+#                                                                              #
+################################################################################
+
+def run_execute_command_test_scenario(cmd: list[str], client: Client, mocker: MockFixture) -> None:
+    pass
+
 ################################################################################
 #                                                                              #
 # Helper functions                                                             #
 #                                                                              #
 ################################################################################
 
-def mock_input(user_inputs: list[str], mocker: MockFixture) -> None:
+def mock_input(user_inputs: list[str], mocker: MockFixture, append_exit = False) -> None:
     # Mock the built-in input function to return the appropriate values on successive calls
     mocked_input = mocker.patch('builtins.input')
-    mocked_input.side_effect = user_inputs
+    if append_exit:
+        mocked_input.side_effect = user_inputs + ['exit']
+    else:
+        mocked_input.side_effect = user_inputs
