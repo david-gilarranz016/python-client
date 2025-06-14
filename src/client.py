@@ -9,7 +9,8 @@ class Client:
 
         while not user_input == 'exit':
             # Call the appropriate action
-            self.__actions['execute_command'].run({ 'cmd': user_input })
+            output = self.__actions['execute_command'].run({ 'cmd': user_input })
+            print(output)
 
             user_input = input('$ ')
 

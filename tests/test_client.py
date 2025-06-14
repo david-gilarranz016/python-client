@@ -66,6 +66,22 @@ def test_calls_execute_command_action_when_receives_a_command(client: Client, mo
     for cmd in commands:
         client._Client__actions['execute_command'].run.assert_any_call({ 'cmd': cmd })
 
+def test_prints_command_output(client: Client, mocker: MockFixture) -> None:
+    # Craft a list of input commands and their outputs
+    mock_input(['pwd', 'whoami'], mocker, append_exit=True)
+    outputs = [ '/var/www/html', 'www-data' ]
+    client._Client__actions['execute_command'].run.side_effect = outputs
+
+    # Mock the print() function
+    mock_print = mocker.patch('builtins.print')
+
+    # Run the client
+    client.run()
+
+    # Expect the print command to have been called with each output
+    for output in outputs:
+        mock_print.assert_any_call(output)
+
 
 ################################################################################
 #                                                                              #
