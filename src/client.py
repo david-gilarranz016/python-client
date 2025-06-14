@@ -16,6 +16,9 @@ class Client:
             if user_input.startswith('!put'):
                 action = 'upload_file'
                 args = { 'filename': user_input.split(' ', 1)[1], 'binary': False }
+            elif user_input.startswith('!binput'):
+                action = 'upload_file'
+                args = { 'filename': user_input.split(' ', 1)[1], 'binary': True}
             else:
                 action = 'execute_command'
                 args = { 'cmd': user_input }

@@ -97,6 +97,22 @@ def test_calls_upload_file_action_for_text_files(client: Client, mocker: MockFix
             'binary': False
         }
         client._Client__actions['upload_file'].run.assert_any_call(request)
+        
+def test_calls_upload_file_action_for_binary_files(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!binput exploit.bin', '!binput "src/different exploit.bin"']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    for cmd in commands:
+        request = {
+            'filename': cmd.split(' ', 1)[1],
+            'binary': True
+        }
+        client._Client__actions['upload_file'].run.assert_any_call(request)
 
 ################################################################################
 #                                                                              #
