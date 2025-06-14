@@ -46,7 +46,7 @@ def test_keeps_running_until_exit_command_is_received(client: Client, mocker: Mo
     mock_input(['id'] * 1000000, mocker)
     test_process = Process(target=client.run)
     test_process.start()
-    test_process.join(0.1)
+    test_process.join(0.01)
 
     # Expect the thread to keep running
     assert test_process.is_alive()
