@@ -114,6 +114,17 @@ def test_calls_upload_file_action_for_binary_files(client: Client, mocker: MockF
         }
         client._Client__actions['upload_file'].run.assert_any_call(request)
 
+def test_calls_delete_history_action(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!delete_history']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    client._Client__actions['delete_history'].run.assert_called_once_with({})
+
 def test_calls_download_file_action_for_text_files(client: Client, mocker: MockFixture) -> None:
     # Craft the list of expected commands
     commands = ['!get php.ini', '!get "/home/www-data/config backup.txt"']

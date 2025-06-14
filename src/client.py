@@ -25,6 +25,9 @@ class Client:
             elif user_input.startswith('!binget'):
                 action = 'download_file'
                 args = { 'filename': user_input.split(' ', 1)[1], 'binary': True}
+            elif user_input.startswith('!delete'):
+                action = 'delete_history'
+                args = {}
             else:
                 action = 'execute_command'
                 args = { 'cmd': user_input }
