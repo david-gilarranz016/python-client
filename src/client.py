@@ -9,7 +9,19 @@ class Client:
 
         while not user_input == 'exit':
             # Call the appropriate action
-            output = self.__actions['execute_command'].run({ 'cmd': user_input })
+            action = None
+            args = {}
+
+            # Select the appropriate action
+            if user_input.startswith('!put'):
+                action = 'upload_file'
+                args = { 'filename': user_input.split(' ', 1)[1], 'binary': False }
+            else:
+                action = 'execute_command'
+                args = { 'cmd': user_input }
+
+            # Run the action
+            output = self.__actions[action].run(args)
             print(output)
 
             user_input = input('$ ')

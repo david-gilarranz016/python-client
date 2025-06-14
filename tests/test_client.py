@@ -82,6 +82,21 @@ def test_prints_command_output(client: Client, mocker: MockFixture) -> None:
     for output in outputs:
         mock_print.assert_any_call(output)
 
+def test_calls_upload_file_action_for_text_files(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['!put test.txt', '!put "/home/tester/secret payload.txt"']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Run the client
+    client.run()
+
+    # Expect the execute_command action to have been called once with each command
+    for cmd in commands:
+        request = {
+            'filename': cmd.split(' ', 1)[1],
+            'binary': False
+        }
+        client._Client__actions['upload_file'].run.assert_any_call(request)
 
 ################################################################################
 #                                                                              #
