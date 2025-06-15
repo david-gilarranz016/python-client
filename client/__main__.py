@@ -16,20 +16,16 @@ def parse_arguments() -> dict[str, str]:
     options = 'u:h'
     long_options = ['url=', 'help']
     options, _ = getopt.getopt(sys.argv[1:], options, long_options)
-    print(options)
 
     url = None
     for opt, arg in options:
-        print(opt)
         if opt in ['-u', '--url']:
             url = arg
-            print(url)
         elif opt in ['-h', '--help']:
             show_help()
             exit(0)
         else:
             show_help()
-            print('PING')
             exit(1)
 
     # Check if a URL was supplied

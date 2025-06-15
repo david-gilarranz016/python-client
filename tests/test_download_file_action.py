@@ -4,6 +4,7 @@ from client.http_service import HTTPService
 
 import pytest
 import pytest_mock
+import os
 from pyfakefs.fake_filesystem import FakeFilesystem
 from base64 import b64encode
 from unittest.mock import MagicMock
@@ -64,6 +65,18 @@ def test_creates_different_binary_file_with_received_content(http_service: Magic
     content = b'Different binary file'
     run_creates_binary_file_test_scenario(filename, content, http_service)
 
+def test_only_includes_basename_when_creating_text_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    # Initialize variables
+    path = '/var/www/sample_file.txt' 
+    content = 'Sample content'
+    run_uses_basename_to_create_file_test_scenario(path, content, False, http_service)
+
+def test_only_includes_basename_when_creating_binary_file(http_service: MagicMock, fs: FakeFilesystem) -> None:
+    # Initialize variables
+    path = '/var/www/sample_file.bin' 
+    content = b'Sample binary content'
+    run_uses_basename_to_create_file_test_scenario(path, content, True, http_service)
+
 ################################################################################
 #                                                                              #
 # Test scenarios to avoid test-case code duplication                           #
@@ -109,6 +122,21 @@ def run_creates_binary_file_test_scenario(filename: str, content: bytes, http_se
     # Expect a file to have been created with the correct contents
     with open(filename, 'rb') as f:
         assert content == f.read()
+
+def run_uses_basename_to_create_file_test_scenario(path: str, content: str | bytes, binary: bool, http_service: MagicMock) -> None:
+    # Initialize variables
+    filename = os.path.basename(path)
+    create_response(http_service, content)
+
+    # Call the action
+    action = DownloadFileAction()
+    action.run({ 'filename': path, 'binary': binary })
+
+    # Expect a file to have been created with the correct contents
+    mode = 'rb' if binary else 'r'
+    with open(filename, mode) as f:
+        assert content == f.read()
+
 
 ################################################################################
 #                                                                              #
