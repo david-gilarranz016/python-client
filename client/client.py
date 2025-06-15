@@ -45,8 +45,11 @@ class Client:
                 args = { 'cmd': user_input }
 
             # Run the action
-            output = self.__actions[action].run(args)
-            print(output)
+            try:
+                output = self.__actions[action].run(args)
+                print(output)
+            except:
+                print('Error: the requested action could not be performed')
 
             user_input = input('$ ')
 

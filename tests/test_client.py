@@ -195,6 +195,21 @@ def test_can_show_a_help_menu(client: Client, mocker: MockFixture) -> None:
     # Expect the show_help action to have been called
     client._Client__actions['show_help'].run.assert_any_call({})
 
+def test_if_an_error_occurs_an_error_message_is_shown(client: Client, mocker: MockFixture) -> None:
+    # Craft the list of expected commands
+    commands = ['cd /etc/passwd']
+    mock_input(commands, mocker, append_exit=True)
+
+    # Mock the print() function
+    mock_print = mocker.patch('builtins.print')
+
+    # Run the client
+    client._Client__actions['execute_command'].run.side_effect = Exception('Test error')
+    client.run()
+
+    # Expect the error message to be shown
+    mock_print.assert_any_call('Error: the requested action could not be performed')
+
 ################################################################################
 #                                                                              #
 # Helper functions                                                             #
