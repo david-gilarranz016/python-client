@@ -1,6 +1,6 @@
-from src.http_service import HTTPService
-from src.singleton import Singleton
-from src.cypher import AESCypher
+from client.http_service import HTTPService
+from client.singleton import Singleton
+from client.cypher import AESCypher
 from typing import Any, Callable
 from pytest_mock import MockFixture
 from unittest.mock import MagicMock

@@ -1,4 +1,4 @@
-from src.singleton import Singleton
+from client.singleton import Singleton
 
 import os
 

@@ -1,5 +1,5 @@
-from src.action import Action
-from src.history_service import HistoryService
+from client.action import Action
+from client.history_service import HistoryService
 from typing import Any
 
 class ShowHistoryAction(Action):

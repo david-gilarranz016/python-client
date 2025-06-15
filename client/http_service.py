@@ -1,5 +1,5 @@
-from src.singleton import Singleton
-from src.cypher import AESCypher
+from client.singleton import Singleton
+from client.cypher import AESCypher
 
 from typing import Any
 import requests

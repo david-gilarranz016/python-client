@@ -1,4 +1,4 @@
-from src.client import Client
+from client.client import Client
 
 import pytest
 import textwrap

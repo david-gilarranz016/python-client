@@ -1,6 +1,6 @@
-from src.show_history_action import ShowHistoryAction
-from src.action import Action
-from src.history_service import HistoryService
+from client.show_history_action import ShowHistoryAction
+from client.action import Action
+from client.history_service import HistoryService
 
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem

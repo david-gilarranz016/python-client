@@ -1,4 +1,4 @@
-from src.action import Action
+from client.action import Action
 from typing import Any
 
 import textwrap

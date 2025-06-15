@@ -1,5 +1,5 @@
-from src.action import Action
-from src.show_help_action import ShowHelpAction
+from client.action import Action
+from client.show_help_action import ShowHelpAction
 
 import pytest
 import textwrap

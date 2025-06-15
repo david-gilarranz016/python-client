@@ -1,7 +1,7 @@
-from src.action import Action
-from src.execute_command_action import ExecuteCommandAction
-from src.history_service import HistoryService
-from src.http_service import HTTPService
+from client.action import Action
+from client.execute_command_action import ExecuteCommandAction
+from client.history_service import HistoryService
+from client.http_service import HTTPService
 
 import pytest
 from unittest.mock import MagicMock

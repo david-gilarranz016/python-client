@@ -3,7 +3,7 @@ import secrets
 import base64
 import pytest
 
-from src.cypher import AESCypher
+from client.cypher import AESCypher
 from Crypto.Cipher import AES
 
 ################################################################################

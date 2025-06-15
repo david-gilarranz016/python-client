@@ -1,5 +1,5 @@
-from src.history_service import HistoryService
-from src.singleton import Singleton
+from client.history_service import HistoryService
+from client.singleton import Singleton
 
 import pytest
 import os

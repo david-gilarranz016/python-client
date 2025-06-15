@@ -1,6 +1,6 @@
-from src.action import Action
-from src.upload_file_action import UploadFileAction
-from src.http_service import HTTPService
+from client.action import Action
+from client.upload_file_action import UploadFileAction
+from client.http_service import HTTPService
 
 import pytest
 import pytest_mock

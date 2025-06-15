@@ -1,4 +1,4 @@
-from src.singleton import Singleton
+from client.singleton import Singleton
 from typing import Callable
 from abc import ABC
 

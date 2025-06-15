@@ -1,5 +1,5 @@
 from abc import ABC
-from src.action import Action
+from client.action import Action
 
 ################################################################################
 #                                                                              #

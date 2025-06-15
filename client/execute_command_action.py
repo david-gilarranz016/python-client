@@ -1,6 +1,6 @@
-from src.action import Action
-from src.http_service import HTTPService
-from src.history_service import HistoryService
+from client.action import Action
+from client.http_service import HTTPService
+from client.history_service import HistoryService
 from typing import Any
 
 class ExecuteCommandAction(Action):
