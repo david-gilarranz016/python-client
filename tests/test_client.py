@@ -84,6 +84,21 @@ def test_prints_command_output(client: Client, mocker: MockFixture) -> None:
     for output in outputs:
         mock_print.assert_any_call(output)
 
+def test_prints_command_output_converting_newlines_if_necessary(client: Client, mocker: MockFixture) -> None:
+    # Craft a list of input commands and their outputs
+    mock_input(['ls'], mocker, append_exit=True)
+    output = 'test1\\ntest2\\ntest3'
+    client._Client__actions['execute_command'].run.return_value = output
+
+    # Mock the print() function
+    mock_print = mocker.patch('builtins.print')
+
+    # Run the client
+    client.run()
+
+    # Expect the print command to have been called with each output
+    mock_print.assert_any_call('test1\ntest2\ntest3')
+
 def test_calls_upload_file_action_for_text_files(client: Client, mocker: MockFixture) -> None:
     # Craft the list of expected commands
     commands = ['!put test.txt', '!put "/home/tester/secret payload.txt"']
