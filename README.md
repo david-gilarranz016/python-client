@@ -70,7 +70,7 @@ in the `requirements.txt` file. To do so, the following command can be used:
 pip install -r requirements.txt
 ```
 
-Once the required dependencies have been installed, the developer can run the unit tests either by running
+Once the required dependencies have been installed, the developer can run the unit tests by running
 the pytest executable:
 
 ```bash
